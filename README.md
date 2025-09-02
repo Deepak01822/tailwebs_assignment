@@ -56,7 +56,7 @@ A secure, logic-driven teacher portal application built with Django that allows 
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd teacher_portal
+   cd tailwebs_assignment
    ```
 
 2. **Create virtual environment**
