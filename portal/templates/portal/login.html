@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            animation: slideInUp 0.6s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        
+        .login-header h1 {
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group input.error {
+            border-color: #e74c3c;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-errors {
+            background: #fee;
+            border: 1px solid #fcc;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .field-error {
+            color: #e74c3c;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Teacher Portal</h1>
+            <p>Please sign in to continue</p>
+        </div>
+        
+        {% if form.errors %}
+            <div class="form-errors">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post" id="loginForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn" id="loginBtn">Sign In</button>
+        </form>
+    </div>
+    
+    <script>
+        // Add loading state to login form
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const btn = document.getElementById('loginBtn');
+            btn.textContent = 'Signing In...';
+            btn.disabled = true;
+            btn.classList.add('loading');
+        });
+        
+        // Client-side validation enhancement
+        const usernameInput = document.querySelector('input[name="username"]');
+        const passwordInput = document.querySelector('input[name="password"]');
+        
+        function validateField(input, minLength, fieldName) {
+            const value = input.value.trim();
+            const errorDiv = input.parentNode.querySelector('.field-error');
+            
+            if (value.length < minLength) {
+                if (!errorDiv) {
+                    const newErrorDiv = document.createElement('div');
+                    newErrorDiv.className = 'field-error';
+                    newErrorDiv.textContent = `${fieldName} must be at least ${minLength} characters long`;
+                    input.parentNode.appendChild(newErrorDiv);
+                }
+                input.classList.add('error');
+                return false;
+            } else {
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+                input.classList.remove('error');
+                return true;
+            }
+        }
+        
+        // Real-time validation
+        usernameInput.addEventListener('blur', function() {
+            validateField(this, 3, 'Username');
+        });
+        
+        passwordInput.addEventListener('blur', function() {
+            validateField(this, 6, 'Password');
+        });
+        
+        // Clear errors on focus
+        [usernameInput, passwordInput].forEach(input => {
+            input.addEventListener('focus', function() {
+                this.classList.remove('error');
+            });
+        });
+    </script>
+</body>
+</html>

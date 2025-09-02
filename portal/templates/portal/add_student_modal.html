@@ -1,0 +1,313 @@
+<div id="addStudentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add New Student</h2>
+        
+        <div id="modalMessages"></div>
+        
+        <form id="addStudentForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="studentName">Student Name</label>
+                <input type="text" 
+                       id="studentName" 
+                       name="name" 
+                       required 
+                       maxlength="100"
+                       placeholder="Enter student name">
+                <div class="form-error" id="nameError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentSubject">Subject</label>
+                <input type="text" 
+                       id="studentSubject" 
+                       name="subject" 
+                       required 
+                       maxlength="100"
+                       placeholder="Enter subject">
+                <div class="form-error" id="subjectError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentMarks">Marks</label>
+                <input type="number" 
+                       id="studentMarks" 
+                       name="marks" 
+                       required 
+                       min="0" 
+                       max="100"
+                       placeholder="Enter marks (0-100)">
+                <div class="form-error" id="marksError"></div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" id="submitBtn">Add Student</button>
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+        animation: slideInDown 0.3s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .close {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #aaa;
+        transition: color 0.3s;
+    }
+    
+    .close:hover {
+        color: #000;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+    
+    .form-group input.error {
+        border-color: #dc3545;
+    }
+    
+    .form-error {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        min-height: 1rem;
+    }
+    
+    .form-group .btn {
+        margin-right: 0.5rem;
+    }
+    
+    #modalMessages .alert {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+    function closeModal() {
+        const modal = document.getElementById('addStudentModal');
+        modal.style.display = 'none';
+        document.getElementById('addStudentForm').reset();
+        clearModalErrors();
+        document.getElementById('modalMessages').innerHTML = '';
+    }
+    
+    function clearModalErrors() {
+        document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+        document.querySelectorAll('.form-group input').forEach(el => el.classList.remove('error'));
+    }
+    
+    function showModalMessage(message, type) {
+        const messagesDiv = document.getElementById('modalMessages');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = `
+            ${escapeHtml(message)}
+            <button class="alert-close" onclick="this.parentNode.remove()">&times;</button>
+        `;
+        messagesDiv.appendChild(alertDiv);
+    }
+    
+    function showFieldError(fieldName, message) {
+        const errorDiv = document.getElementById(fieldName + 'Error');
+        const inputField = document.getElementById('student' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1));
+        
+        if (errorDiv) {
+            errorDiv.textContent = message;
+        }
+        if (inputField) {
+            inputField.classList.add('error');
+        }
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addStudentModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+    
+    // Handle escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('addStudentModal');
+            if (modal.style.display === 'block') {
+                closeModal();
+            }
+        }
+    });
+    
+    // Add student form submission
+    document.getElementById('addStudentForm').onsubmit = function(e) {
+        e.preventDefault();
+        clearModalErrors();
+        document.getElementById('modalMessages').innerHTML = '';
+        
+        const formData = new FormData(this);
+        const data = {
+            name: formData.get('name').trim(),
+            subject: formData.get('subject').trim(),
+            marks: parseInt(formData.get('marks'))
+        };
+        
+        // Client-side validation
+        let hasErrors = false;
+        
+        if (!data.name || data.name.length < 2) {
+            showFieldError('name', 'Name must be at least 2 characters long');
+            hasErrors = true;
+        } else if (!/^[a-zA-Z\s]+$/.test(data.name)) {
+            showFieldError('name', 'Name can only contain letters and spaces');
+            hasErrors = true;
+        }
+        
+        if (!data.subject || data.subject.length < 2) {
+            showFieldError('subject', 'Subject must be at least 2 characters long');
+            hasErrors = true;
+        } else if (!/^[a-zA-Z\s]+$/.test(data.subject)) {
+            showFieldError('subject', 'Subject can only contain letters and spaces');
+            hasErrors = true;
+        }
+        
+        if (isNaN(data.marks) || data.marks < 0 || data.marks > 100) {
+            showFieldError('marks', 'Marks must be between 0 and 100');
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Adding...';
+        submitBtn.disabled = true;
+        
+        // Send AJAX request
+        fetch('{% url "add_student" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.status === 401) {
+                handleAuthError();
+                return;
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (result && result.success) {
+                showMessage(result.message, 'success');
+                closeModal();
+                
+                // Add new student to table or update existing
+                if (result.student) {
+                    // New student was created
+                    addStudentToTable(result.student);
+                } else if (result.student_id) {
+                    // Existing student was updated
+                    updateStudentInTable(result.student_id, result.new_marks);
+                }
+            } else if (result) {
+                // Handle validation errors from serializer
+                if (result.form_errors) {
+                    // Display field-specific errors
+                    Object.keys(result.form_errors).forEach(fieldName => {
+                        const errors = result.form_errors[fieldName];
+                        if (Array.isArray(errors) && errors.length > 0) {
+                            showFieldError(fieldName, errors[0]);
+                        }
+                    });
+                    
+                    // Also show general error message
+                    showModalMessage(result.error || 'Please correct the errors below', 'error');
+                } else {
+                    showModalMessage(result.error || 'Failed to add student', 'error');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showModalMessage('Network error occurred', 'error');
+        })
+        .finally(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
+    };
+</script>

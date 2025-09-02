@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-logout:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .students-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .marks-input {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            border-radius: 3px;
+            width: 80px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        
+        .marks-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .marks-input:disabled {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .delete-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-close {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        
+        .no-students {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .row-loading {
+            background: #f8f9fa !important;
+            opacity: 0.7;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 1;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Teacher Portal</h1>
+            <div>
+                <span>Welcome, {{ teacher.username }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-logout">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="stats-bar">
+            <div class="stat-card">
+                <h3 id="totalStudents">{{ students.count }}</h3>
+                <p>Total Students</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalSubjects">{{ students|length|add:"0" }}</h3>
+                <p>Subjects</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgMarks">--</h3>
+                <p>Average Marks</p>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <h2>Student Management</h2>
+            <button id="addStudentBtn" class="btn btn-primary">Add New Student</button>
+        </div>
+
+        <div id="messages"></div>
+
+        <div class="students-table">
+            <div class="table-header">
+                <h3>Students List (<span id="studentCount">{{ students.count }}</span> total)</h3>
+            </div>
+            
+            {% if students %}
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr data-student-id="{{ student.id }}">
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.subject }}</td>
+                            <td>
+                                <input type="number" 
+                                       class="marks-input" 
+                                       value="{{ student.marks }}" 
+                                       min="0" 
+                                       max="100"
+                                       data-original="{{ student.marks }}"
+                                       onchange="updateMarks('{{ student.id }}', this.value, this)">
+                            </td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteStudent('{{ student.id }}', this)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-students" id="noStudentsMessage">
+                    <h3>No students found</h3>
+                    <p>Click "Add New Student" to get started.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Include the Add Student Modal -->
+    {% include 'portal/add_student_modal.html' %}
+
+    <script>
+        // Get CSRF token
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+        
+        // Modal functionality
+        const modal = document.getElementById('addStudentModal');
+        const addBtn = document.getElementById('addStudentBtn');
+        
+        addBtn.onclick = function() {
+            modal.style.display = 'block';
+        }
+        
+        // Message display functions
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('messages');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                ${escapeHtml(message)}
+                <button class="alert-close" onclick="this.parentNode.remove()">&times;</button>
+            `;
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 8000);
+            
+            messagesDiv.appendChild(alertDiv);
+        }
+        
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        // Add student row to table
+        function addStudentToTable(student) {
+            const noStudentsMsg = document.getElementById('noStudentsMessage');
+            let tbody = document.querySelector('#studentsTable tbody');
+            
+            // If no table exists, create it
+            if (!tbody) {
+                const tableContainer = document.querySelector('.students-table');
+                if (noStudentsMsg) {
+                    noStudentsMsg.remove();
+                }
+                
+                tableContainer.innerHTML = `
+                    <div class="table-header">
+                        <h3>Students List (<span id="studentCount">0</span> total)</h3>
+                    </div>
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `;
+                tbody = document.querySelector('#studentsTable tbody');
+            }
+            
+            const row = document.createElement('tr');
+            row.setAttribute('data-student-id', student.id);
+            row.innerHTML = `
+                <td>${escapeHtml(student.name)}</td>
+                <td>${escapeHtml(student.subject)}</td>
+                <td>
+                    <input type="number" 
+                           class="marks-input" 
+                           value="${student.marks}" 
+                           min="0" 
+                           max="100"
+                           data-original="${student.marks}"
+                           onchange="updateMarks(${student.id}, this.value, this)">
+                </td>
+                <td>
+                    <button class="delete-btn" onclick="deleteStudent(${student.id}, this)">
+                        Delete
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            updateStats();
+        }
+        
+        // Update existing student in table
+        function updateStudentInTable(studentId, newMarks) {
+            const row = document.querySelector(`tr[data-student-id="${studentId}"]`);
+            if (row) {
+                const marksInput = row.querySelector('.marks-input');
+                marksInput.value = newMarks;
+                marksInput.setAttribute('data-original', newMarks);
+                updateStats();
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const rows = document.querySelectorAll('#studentsTable tbody tr');
+            const totalStudents = rows.length;
+            
+            if (totalStudents === 0) {
+                document.getElementById('totalStudents').textContent = '0';
+                document.getElementById('totalSubjects').textContent = '0';
+                document.getElementById('avgMarks').textContent = '--';
+                document.getElementById('studentCount').textContent = '0';
+                return;
+            }
+            
+            let totalMarks = 0;
+            const subjects = new Set();
+            
+            rows.forEach(row => {
+                const marksInput = row.querySelector('.marks-input');
+                const subject = row.cells[1].textContent.trim();
+                
+                totalMarks += parseInt(marksInput.value) || 0;
+                subjects.add(subject);
+            });
+            
+            const avgMarks = Math.round(totalMarks / totalStudents);
+            
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalSubjects').textContent = subjects.size;
+            document.getElementById('avgMarks').textContent = avgMarks;
+            document.getElementById('studentCount').textContent = totalStudents;
+        }
+        
+        // Update marks inline
+        function updateMarks(studentId, newMarks, inputElement) {
+            const originalValue = inputElement.getAttribute('data-original');
+            
+            // Validate marks
+            const marks = parseInt(newMarks);
+            if (isNaN(marks) || marks < 0 || marks > 100) {
+                showMessage('Marks must be between 0 and 100', 'error');
+                inputElement.value = originalValue;
+                return;
+            }
+            
+            // Don't update if value hasn't changed
+            if (marks == originalValue) {
+                return;
+            }
+            
+            // Show loading state
+            inputElement.disabled = true;
+            const row = inputElement.closest('tr');
+            row.classList.add('row-loading');
+            
+            fetch('{% url "update_marks" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    marks: marks
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    handleAuthError();
+                    return;
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result && result.success) {
+                    showMessage(result.message, 'success');
+                    inputElement.setAttribute('data-original', marks);
+                    updateStats();
+                } else if (result) {
+                    const errorMsg = result.error || 
+                                   (result.form_errors && JSON.stringify(result.form_errors)) || 
+                                   'Failed to update marks';
+                    showMessage(errorMsg, 'error');
+                    inputElement.value = originalValue;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Network error occurred', 'error');
+                inputElement.value = originalValue;
+            })
+            .finally(() => {
+                inputElement.disabled = false;
+                row.classList.remove('row-loading');
+            });
+        }
+        
+        // Delete student
+        function deleteStudent(studentId, buttonElement) {
+            if (!confirm('Are you sure you want to delete this student?')) {
+                return;
+            }
+            
+            const row = buttonElement.closest('tr');
+            const studentName = row.cells[0].textContent;
+            
+            // Show loading state
+            buttonElement.disabled = true;
+            buttonElement.textContent = 'Deleting...';
+            row.classList.add('row-loading');
+            
+            fetch('{% url "delete_student" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    student_id: studentId
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    handleAuthError();
+                    return;
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result && result.success) {
+                    showMessage(result.message, 'success');
+                    row.remove();
+                    updateStats();
+                    
+                    // Check if table is empty and show no students message
+                    const tbody = document.querySelector('#studentsTable tbody');
+                    if (!tbody || tbody.children.length === 0) {
+                        const tableContainer = document.querySelector('.students-table');
+                        tableContainer.innerHTML = `
+                            <div class="table-header">
+                                <h3>Students List (<span id="studentCount">0</span> total)</h3>
+                            </div>
+                            <div class="no-students" id="noStudentsMessage">
+                                <h3>No students found</h3>
+                                <p>Click "Add New Student" to get started.</p>
+                            </div>
+                        `;
+                        updateStats();
+                    }
+                } else if (result) {
+                    const errorMsg = result.error || 
+                                   (result.form_errors && JSON.stringify(result.form_errors)) || 
+                                   'Failed to delete student';
+                    showMessage(errorMsg, 'error');
+                    buttonElement.disabled = false;
+                    buttonElement.textContent = 'Delete';
+                    row.classList.remove('row-loading');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Network error occurred', 'error');
+                buttonElement.disabled = false;
+                buttonElement.textContent = 'Delete';
+                row.classList.remove('row-loading');
+            });
+        }
+        
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Handle session expiration
+        function handleAuthError() {
+            alert('Your session has expired. Please log in again.');
+            window.location.href = '{% url "login" %}';
+        }
+        
+        // Initialize stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+        });
+        
+        // Auto-refresh functionality (optional)
+        let autoRefreshEnabled = false;
+        
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            if (autoRefreshEnabled) {
+                autoRefreshInterval = setInterval(refreshStudentList, 30000); // 30 seconds
+                showMessage('Auto-refresh enabled (30s interval)', 'success');
+            } else {
+                clearInterval(autoRefreshInterval);
+                showMessage('Auto-refresh disabled', 'success');
+            }
+        }
+        
+        function refreshStudentList() {
+            fetch('{% url "student_list_api" %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    handleAuthError();
+                    return;
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result && result.success) {
+                    // Update the table with fresh data
+                    refreshTableData(result.students);
+                }
+            })
+            .catch(error => {
+                console.error('Auto-refresh error:', error);
+            });
+        }
+        
+        function refreshTableData(students) {
+            const tableContainer = document.querySelector('.students-table');
+            
+            if (students.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="table-header">
+                        <h3>Students List (<span id="studentCount">0</span> total)</h3>
+                    </div>
+                    <div class="no-students" id="noStudentsMessage">
+                        <h3>No students found</h3>
+                        <p>Click "Add New Student" to get started.</p>
+                    </div>
+                `;
+            } else {
+                let tableHTML = `
+                    <div class="table-header">
+                        <h3>Students List (<span id="studentCount">${students.length}</span> total)</h3>
+                    </div>
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                students.forEach(student => {
+                    tableHTML += `
+                        <tr data-student-id="${student.id}">
+                            <td>${escapeHtml(student.name)}</td>
+                            <td>${escapeHtml(student.subject)}</td>
+                            <td>
+                                <input type="number" 
+                                       class="marks-input" 
+                                       value="${student.marks}" 
+                                       min="0" 
+                                       max="100"
+                                       data-original="${student.marks}"
+                                       onchange="updateMarks(${student.id}, this.value, this)">
+                            </td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteStudent(${student.id}, this)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table>';
+                tableContainer.innerHTML = tableHTML;
+            }
+            updateStats();
+        }
+    </script>
+</body>
+</html>
