@@ -147,6 +147,10 @@ A secure, logic-driven teacher portal application built with Django that allows 
     - Open browser to `http://localhost:8000/`
     - Login with username: `admin`, password: `admin123`
 
+12. **Other test credentials**
+    - Login with username: `Manoj`, password: `manoj123`
+    - Login with username: `testuser`, password: `testpass123`
+
 ## Usage Guide
 
 ### Login
@@ -275,7 +279,3 @@ students = [
 ## License
 
 This project is created for educational/assessment purposes.
-
----
-
-**Note**: This implementation demonstrates custom Django development without AI assistance, following security best practices and clean code principles.
